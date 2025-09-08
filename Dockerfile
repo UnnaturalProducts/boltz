@@ -24,7 +24,7 @@ COPY model_cache /app/.boltz/
 
 # Install dependencies and package in editable mode
 RUN pip install --upgrade pip && \
-    pip install -e .
+    pip install -e .[cuda,lint,test]
 
 # Set entrypoint for CLI usage (optional)
 ENTRYPOINT ["boltz", "predict"]
