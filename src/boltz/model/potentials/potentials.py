@@ -174,8 +174,7 @@ class Potential(ABC):
                 index.flatten(start_dim=0, end_dim=1)
                 .unsqueeze(-1)
                 .expand((*coords.shape[:-2], -1, 3)),
-                dSoftmax.tile(grad_value.shape[-3]).unsqueeze(-1)
-                * grad_value.flatten(start_dim=-3, end_dim=-2),
+                prod,
                 "sum",
             )
         else:
@@ -240,9 +239,11 @@ class FlatBottomPotential(Potential):
         compute_derivative=False,
     ):
         if lower_bounds is None:
-            upper_bounds = torch.full_like(value, float("-inf"))
+            lower_bounds = torch.full_like(value, float("-inf"))
         if upper_bounds is None:
             upper_bounds = torch.full_like(value, float("inf"))
+        lower_bounds = lower_bounds.expand_as(value).clone()
+        upper_bounds = upper_bounds.expand_as(value).clone()
 
         if negation_mask is not None:
             unbounded_below_mask = torch.isneginf(lower_bounds)
